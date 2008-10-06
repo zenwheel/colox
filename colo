@@ -1,7 +1,9 @@
 #!/usr/bin/perl
 
 open(RC, "$ENV{'HOME'}/.colorc") || die "Can't read config from $ENV{'HOME'}/.colorc\n";
-open(X, "/usr/X11R6/lib/X11/rgb.txt") || die "Can't read colors from /usr/X11R6/lib/X11/rgb.txt, make sure the X11 package is installed.\n";
+my $rgbpath = '/usr/X11R6/lib/X11/rgb.txt';
+$rgbpath = '/usr/X11/share/X11/rgb.txt' if(-f '/usr/X11/share/X11/rgb.txt');
+open(X, $rgbpath) || die "Can't read colors from $rgbpath, make sure the X11 package is installed.\n";
 
 # cache color table
 my @xcolors;
