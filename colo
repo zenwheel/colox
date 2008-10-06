@@ -1,0 +1,73 @@
+#!/usr/bin/perl
+
+open(RC, "$ENV{'HOME'}/.colorc") || die "Can't read config from $ENV{'HOME'}/.colorc\n";
+open(X, "/usr/X11R6/lib/X11/rgb.txt") || die "Can't read colors from /usr/X11R6/lib/X11/rgb.txt, make sure the X11 package is installed.\n";
+
+# cache color table
+my @xcolors;
+while(<X>) {
+	s/^\s*//;
+	s/\s*$//;
+	push @xcolors, $_; 
+}
+close X;
+
+# read all config lines
+my @lines;
+while(<RC>) {
+	s/^\s*//;
+	s/\s*$//;
+	next if(/^#/);
+
+	my @colors = split /\s*,\s*/;
+	next if($#colors < 1 || $#colors > 3);
+
+	push @lines, $_;
+}
+close RC;
+
+# load r,g,b for a named color
+sub FindColor {
+	my ($color) = @_;
+
+	foreach my $c (@xcolors) {
+		my @x = split /\s+/, $c;
+		if(lc $x[3] eq lc $color) {
+			my @r;
+			push @r, ($x[0] * 256); # r
+			push @r, ($x[1] * 256); # g
+			push @r, ($x[2] * 256); # b
+			return @r;
+		}
+	}
+	return (0,0,0);
+}
+
+# get a random line from the ones we read
+my $i = int(rand() * ($#lines + 1));
+
+# load color names
+my @colors = split /\s*,\s*/, $lines[$i];
+my $fg = $colors[0];
+my $bg = $colors[1];
+my $cur = $fg;
+$cur = $colors[2] if($#colors > 1);
+my $trans = 100;
+$trans = $colors[3] if($#colors > 2);
+$trans *= 655;
+
+#print "fg->$fg\n";
+#print "bg->$bg\n";
+#print "cur->$cur\n";
+#print "trans->$trans\n";
+
+# save to current terminal
+my @fgc = FindColor($fg);
+system("osascript -e 'tell application \"Terminal\" to tell its front window to set its normal text color to {$fgc[0],$fgc[1],$fgc[2]}'");
+
+my @curc = FindColor($cur);
+system("osascript -e 'tell application \"Terminal\" to tell its front window to set its cursor color to {$curc[0],$curc[1],$curc[2]}'");
+
+my @bgc = FindColor($bg);
+system("osascript -e 'tell application \"Terminal\" to tell its front window to set its background color to {$bgc[0],$bgc[1],$bgc[2],$trans}'");
+

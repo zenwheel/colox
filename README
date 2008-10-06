@@ -1,0 +1,18 @@
+Thank you for trying colo for OS X,
+
+here's what you need to do to use it:
+
+copy the file 'colo' to somewhere in your path (/usr/local/bin perhaps)
+
+you should set up a .colorc in your home directory, a way to start
+is probably copy the colorc included in this archive, and edit it to your
+liking..
+
+colors are picked from any line in the file except lines starting with #, and the lines contain
+
+foreground-color,background-color,(cursor-color),(transparency)
+
+where cursor-color can be omitid if you just want it to be the same as
+foreground-color, transparency is 0-100 and will default to 100
+
+enjoy! 
